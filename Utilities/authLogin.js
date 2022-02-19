@@ -1,4 +1,5 @@
-const User = require('../Models/User');
+//const User = require('../Models/User');
+const pool = require('../db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const config = require('config');
@@ -10,22 +11,30 @@ const userLogin = async (userCreds, role, res) => {
 	try {
 		const { username, password } = userCreds;
 		// Firse, Check wheatheer the username is in database
-		const user = await User.findOne({ username });
-		if (!user) {
+		let user = await pool.query('SELECT * FROM users WHERE username = $1', [
+			username,
+		]);
+
+		const userRow = user.rows[0];
+		//const user = await User.findOne({ username });
+		//if (!user) {
+		if (user.rowCount === 0) {
 			return res.status(404).json({
 				message: [{ msg: 'Username not found. Invalid login credentials' }],
 				success: false,
 			});
 		}
 		// Then, Check the role
-		if (user.role !== role) {
+		//if (user.role !== role) {
+		if (userRow.role !== role) {
 			return res.status(403).json({
 				message: [{ msg: 'You are logging in from wrong portal' }],
 				success: false,
 			});
 		}
 		// Now user is valid. Lets compare the password
-		let isMatch = await bcrypt.compare(password, user.password);
+		//let isMatch = await bcrypt.compare(password, user.password);
+		let isMatch = await bcrypt.compare(password, userRow.pw);
 		if (!isMatch) {
 			return res.status(404).json({
 				message: [{ msg: 'Incorrect password. Invalid login credentials' }],
@@ -44,9 +53,9 @@ const userLogin = async (userCreds, role, res) => {
 		// }
 
 		const payload = {
-			user_id: user._id,
-			username: user.username,
-			email: user.email,
+			user_id: userRow.userid,
+			username: userRow.username,
+			email: userRow.email,
 		};
 
 		jwt.sign(payload, SECRET, { expiresIn: '5 days' }, (err, token) => {

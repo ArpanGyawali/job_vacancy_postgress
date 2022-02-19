@@ -14,7 +14,7 @@ const SeekerProfile = ({
 	auth,
 }) => {
 	let { id } = useParams();
-	console.log(id);
+
 	useEffect(() => {
 		getProfileById(id, 'seeker');
 	}, [getProfileById, id]);
@@ -35,7 +35,7 @@ const SeekerProfile = ({
 				<Fragment>
 					{auth.isAuthenticated &&
 						auth.isLoading === false &&
-						auth.user._id === id &&
+						auth.user.userid == id &&
 						profile !== null && (
 							<Link to='/updateSeekerProfile' className='btn btn-dark'>
 								Edit Profile
@@ -50,11 +50,11 @@ const SeekerProfile = ({
 						<SeekerProfileData profile={profile} seeker={auth.user} />
 						{auth.isAuthenticated &&
 							auth.isLoading === false &&
-							auth.user._id === id && <AppliedJobs id={id} />}
+							auth.user.userid == id && <AppliedJobs id={id} />}
 					</div>
 					{auth.isAuthenticated &&
 						auth.isLoading === false &&
-						auth.user._id === profile.user._id && (
+						auth.user.userid == id && (
 							<div className='my-2'>
 								<button
 									className='btn btn-danger'

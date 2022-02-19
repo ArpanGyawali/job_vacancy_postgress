@@ -4,13 +4,14 @@ import PropTypes from 'prop-types';
 const RecruiterProfileData = ({
 	profile: {
 		location,
-		noOfJobs,
-		desc,
+		noOfjobs,
+		description,
 		website,
-		contactNo,
-		workEmail,
+		contactno,
 		social,
-		user: { name, username, avatar },
+		name,
+		username,
+		avatar,
 	},
 	recruiter: { email },
 }) => {
@@ -29,37 +30,18 @@ const RecruiterProfileData = ({
 							<i class='fas fa-globe fa-2x'></i>
 						</a>
 					)}
-					{social && social.twitter && (
-						<a href={social.twitter} target='_blank' rel='noopener noreferrer'>
-							<i class='fab fa-twitter fa-2x'></i>
-						</a>
-					)}
-					{social && social.facebook && (
-						<a href={social.facebook} target='_blank' rel='noopener noreferrer'>
-							<i class='fab fa-facebook fa-2x'></i>
-						</a>
-					)}
-					{social && social.linkedin && (
-						<a href={social.linkedin} target='_blank' rel='noopener noreferrer'>
-							<i class='fab fa-linkedin fa-2x'></i>
-						</a>
-					)}
-					{social && social.instagram && (
-						<a
-							href={social.instagram}
-							target='_blank'
-							rel='noopener noreferrer'
-						>
-							<i class='fab fa-instagram fa-2x'></i>
+					{social && (
+						<a href={social} target='_blank' rel='noopener noreferrer'>
+							<i class='fa fa-heart fa-2x'></i>
 						</a>
 					)}
 				</div>
 			</div>
 			<div class='profile-about bg-light p-2'>
-				{desc && (
+				{description && (
 					<Fragment>
 						<h2 class='text-primary'>About</h2>
-						<p>{desc}</p>
+						<p>{description}</p>
 						<div class='line'></div>
 					</Fragment>
 				)}
@@ -69,17 +51,13 @@ const RecruiterProfileData = ({
 					<div class='p-1'>
 						<i class='fa fa-envelope'></i>
 						<strong>Email: </strong>
-						{workEmail ? (
-							<span>{`${workEmail}  | `}</span>
-						) : (
-							<span>{`${email}  | `}</span>
-						)}
+						<span>{`${email}  | `}</span>
 						<i class='fa fa-phone'></i>
 						<strong>Contact Number: </strong>
-						{contactNo && <span>{`${contactNo}  | `} </span>}
+						{contactno && <span>{`${contactno}  | `} </span>}
 						<i class='fa fa-briefcase'></i>
 						<strong>No of Jobs Provided: </strong>
-						<span>{noOfJobs}</span>
+						<span>{noOfjobs}</span>
 					</div>
 				</div>
 			</div>

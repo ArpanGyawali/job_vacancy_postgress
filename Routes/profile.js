@@ -25,13 +25,19 @@ const { RecruiterProfile } = require('../Models/Profile');
 
 const validationSeekerArr = [
 	check('location', 'Loaction is required').not().isEmpty(),
-	check('currentStatus', 'Your current status is required').not().isEmpty(),
-	check('contactNo', 'Your contact number is required').not().isEmpty(),
+	check('currentstatus', 'Your current status is required').not().isEmpty(),
+	check('contactno', 'Your contact number is required').not().isEmpty(),
+	check('jobinterest', 'Atleast one job interest is required').not().isEmpty(),
+	check('description', 'Your description is required').not().isEmpty(),
+	check('social', 'Any social media link is required').not().isEmpty(),
 ];
 
 const validationRecruiterArr = [
 	check('location', 'Loaction is required').not().isEmpty(),
-	check('contactNo', 'Your contact number is required').not().isEmpty(),
+	check('contactno', 'Your contact number is required').not().isEmpty(),
+	check('website', 'Your website is required').not().isEmpty(),
+	check('description', 'Your description is required').not().isEmpty(),
+	check('social', 'Any social media link is required').not().isEmpty(),
 ];
 
 // Seeker Own Profile Route
@@ -61,7 +67,6 @@ router.post(
 // Recruiter Profile Update
 router.post(
 	'/profile-recruiter',
-	validationRecruiterArr,
 	userAuth,
 	checkRole(['recruiter']),
 	validationRecruiterArr,

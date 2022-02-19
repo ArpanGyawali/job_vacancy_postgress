@@ -44,7 +44,6 @@ export const createUpdate =
 				url = '/api/profiles/profile-recruiter';
 			}
 			const res = await axios.post(url, profileData);
-
 			dispatch({
 				type: GET_PROFILE,
 				payload: res.data,

@@ -1,4 +1,5 @@
 const User = require('../Models/User');
+const pool = require('../db');
 const config = require('config');
 const SECRET = config.get('APP_SECRET');
 const { Strategy, ExtractJwt } = require('passport-jwt');
@@ -13,8 +14,12 @@ const jwtPassport = (passport) => {
 	passport.use(
 		new Strategy(opts, async (payload, done) => {
 			try {
-				const user = await User.findById(payload.user_id);
-				if (user) {
+				const currentUser = await pool.query(
+					'SELECT * FROM users WHERE userid = $1',
+					[payload.user_id]
+				);
+				const user = currentUser.rows[0];
+				if (currentUser.rowCount != 0) {
 					//we can implement our logger function here to keep track
 					//of every logs using pakages like morgan or winston
 
@@ -35,10 +40,8 @@ const serializeUser = (user) => {
 		username: user.username,
 		email: user.email,
 		name: user.name,
-		_id: user._id,
+		userid: user.userid,
 		avatar: user.avatar,
-		updatedAt: user.updatedAt,
-		createdAt: user.createdAt,
 	};
 };
 

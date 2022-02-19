@@ -9,32 +9,17 @@ const CreateRecruiterProfile = (props) => {
 	const {
 		auth: { user, isAuthenticated },
 	} = props;
-	const id = isAuthenticated && user !== null && user._id;
+	const id = isAuthenticated && user !== null && user.userid;
 	const [recruiterProfileData, setRecruiterProfileData] = useState({
 		location: '',
 		website: '',
-		contactNo: '',
-		workEmail: '',
-		desc: '',
-		facebook: '',
-		twitter: '',
-		linkedin: '',
-		instagram: '',
+		contactno: '',
+		description: '',
+		social: '',
 	});
 
-	const [displaySocial, toggleSocial] = useState(false);
-
-	const {
-		location,
-		website,
-		contactNo,
-		workEmail,
-		desc,
-		facebook,
-		linkedin,
-		twitter,
-		instagram,
-	} = recruiterProfileData;
+	const { location, website, contactno, description, social } =
+		recruiterProfileData;
 
 	const handleChange = (ele) =>
 		setRecruiterProfileData({
@@ -54,7 +39,7 @@ const CreateRecruiterProfile = (props) => {
 				<i className='fas fa-user'></i> Let's get some information
 			</p>
 			<small>
-				<strong>* = required field</strong>
+				<strong>All the fields are required</strong>
 			</small>
 			<form className='form' onSubmit={(ele) => handleSubmit(ele)}>
 				<div className='form-group'>
@@ -73,8 +58,8 @@ const CreateRecruiterProfile = (props) => {
 					<input
 						type='text'
 						placeholder='* Contact Number'
-						name='contactNo'
-						value={contactNo}
+						name='contactno'
+						value={contactno}
 						onChange={(ele) => handleChange(ele)}
 					/>
 					<small className='form-text'>
@@ -90,89 +75,33 @@ const CreateRecruiterProfile = (props) => {
 						onChange={(ele) => handleChange(ele)}
 					/>
 					<small className='form-text'>
-						If your company has a website, please add it
+						If your company has a website, please add it. Otherwise any other
+						links to find information about your company.
 					</small>
 				</div>
 				<div className='form-group'>
 					<input
-						type='email'
-						placeholder='Work Email'
-						name='workEmail'
-						value={workEmail}
+						type='text'
+						placeholder='Social Media url'
+						name='social'
+						value={social}
 						onChange={(ele) => handleChange(ele)}
 					/>
 					<small className='form-text'>
-						Give us your email that you use professionally
+						Enter any of your associated social media link.
 					</small>
 				</div>
 				<div className='form-group'>
 					<textarea
 						placeholder='A short intro'
-						name='desc'
-						value={desc}
+						name='description'
+						value={description}
 						onChange={(ele) => handleChange(ele)}
 					/>
 					<small className='form-text'>
 						Tell us a little about your company
 					</small>
 				</div>
-				<div className='my-2'>
-					<button
-						onClick={() => toggleSocial(!displaySocial)}
-						type='button'
-						className='btn btn-light'
-					>
-						Add Social Network Links
-					</button>
-					<span>Optional</span>
-				</div>
-				{displaySocial && (
-					<Fragment>
-						<div className='form-group social-input'>
-							<i className='fab fa-twitter fa-2x'></i>
-							<input
-								type='text'
-								placeholder='Twitter URL'
-								name='twitter'
-								value={twitter}
-								onChange={(ele) => handleChange(ele)}
-							/>
-						</div>
-
-						<div className='form-group social-input'>
-							<i className='fab fa-facebook fa-2x'></i>
-							<input
-								type='text'
-								placeholder='Facebook URL'
-								name='facebook'
-								value={facebook}
-								onChange={(ele) => handleChange(ele)}
-							/>
-						</div>
-
-						<div className='form-group social-input'>
-							<i className='fab fa-linkedin fa-2x'></i>
-							<input
-								type='text'
-								placeholder='Linkedin URL'
-								name='linkedin'
-								value={linkedin}
-								onChange={(ele) => handleChange(ele)}
-							/>
-						</div>
-
-						<div className='form-group social-input'>
-							<i className='fab fa-instagram fa-2x'></i>
-							<input
-								type='text'
-								placeholder='Instagram URL'
-								name='instagram'
-								value={instagram}
-								onChange={(ele) => handleChange(ele)}
-							/>
-						</div>
-					</Fragment>
-				)}
 
 				<input type='submit' className='btn btn-primary my-1' />
 			</form>

@@ -34,7 +34,7 @@ const RecruiterProfile = ({
 				<Fragment>
 					{auth.isAuthenticated &&
 						auth.isLoading === false &&
-						auth.user._id === id &&
+						auth.user.userid == id &&
 						profile !== null && (
 							<Link to='/updateRecruiterProfile' className='btn btn-dark'>
 								Edit Profile
@@ -46,7 +46,7 @@ const RecruiterProfile = ({
 					</div>
 					{auth.isAuthenticated &&
 						auth.isLoading === false &&
-						auth.user._id === profile.user._id && (
+						auth.user.userid == id && (
 							<div className='my-2'>
 								<button
 									className='btn btn-danger'

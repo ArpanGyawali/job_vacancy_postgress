@@ -30,34 +30,41 @@ app.use('/api/profiles', require('./Routes/profile'));
 app.use('/api/jobs', require('./Routes/jobPosts'));
 app.use('/api/auth', require('./Routes/auth'));
 
-const connectandStart = async () => {
-	try {
-		// Connection with the database
-		await mongoose.connect(DB, {
-			useFindAndModify: false,
-			useUnifiedTopology: true,
-			useNewUrlParser: true,
-			useCreateIndex: true,
-		});
+app.listen(PORT, () =>
+	success({
+		message: `Server listening to port ${PORT}`,
+		badge: true,
+	})
+);
 
-		success({
-			message: 'Successfully connected with the MongoDB atlas',
-			badge: true,
-		});
-		// Listening to the port
-		app.listen(PORT, () =>
-			success({
-				message: `Server listening to port ${PORT}`,
-				badge: true,
-			})
-		);
-	} catch (err) {
-		error({
-			message: `Unable to connect to MongoDB atlas \n${err}`,
-			badge: true,
-		});
-		connectandStart();
-	}
-};
+// const connectandStart = async () => {
+// 	try {
+// 		// Connection with the database
+// 		await mongoose.connect(DB, {
+// 			useFindAndModify: false,
+// 			useUnifiedTopology: true,
+// 			useNewUrlParser: true,
+// 			useCreateIndex: true,
+// 		});
 
-connectandStart();
+// 		success({
+// 			message: 'Successfully connected with the MongoDB atlas',
+// 			badge: true,
+// 		});
+// 		// Listening to the port
+// 		app.listen(PORT, () =>
+// 			success({
+// 				message: `Server listening to port ${PORT}`,
+// 				badge: true,
+// 			})
+// 		);
+// 	} catch (err) {
+// 		error({
+// 			message: `Unable to connect to MongoDB atlas \n${err}`,
+// 			badge: true,
+// 		});
+// 		connectandStart();
+// 	}
+// };
+
+// connectandStart();

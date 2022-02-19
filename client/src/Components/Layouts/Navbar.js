@@ -10,7 +10,7 @@ const Navbar = ({ auth, logout }) => {
 	//const role = auth.user.role                    //if role is re  required
 	const { isAuthenticated, isLoading, user } = auth;
 	const role = user && user.role;
-	const id = user && user._id;
+	const id = user && user.userid;
 	let route;
 	if (role === 'seeker') {
 		route = `/seekerProfile/${id}`;

@@ -1,4 +1,5 @@
-const User = require('../Models/User');
+//const User = require('../Models/User');
+const pool = require('../db');
 const gravatar = require('gravatar');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -9,7 +10,7 @@ const SECRET = config.get('APP_SECRET');
 
 const userRegister = async (userCreds, role, res) => {
 	try {
-		const { username, password, email } = userCreds;
+		const { name, username, password, email } = userCreds;
 		//validate the username
 		let usernameNotTaken = await validateUsername(username);
 		if (!usernameNotTaken) {
@@ -37,18 +38,16 @@ const userRegister = async (userCreds, role, res) => {
 		const hashPassword = await bcrypt.hash(password, 10);
 
 		// Create a new User
-		const newUser = new User({
-			...userCreds,
-			password: hashPassword,
-			avatar,
-			role,
-		});
-		await newUser.save();
+		const newUser = await pool.query(
+			'INSERT INTO users (name, username, email, avatar, pw, role) VALUES($1, $2, $3, $4, $5, $6) RETURNING *',
+			[name, username, email, avatar, hashPassword, role]
+		);
+		const newUserRow = newUser.rows[0];
 
 		const payload = {
-			user_id: newUser._id,
-			username: newUser.username,
-			email: newUser.email,
+			user_id: newUserRow.userid,
+			username: newUserRow.username,
+			email: newUserRow.email,
 		};
 
 		jwt.sign(payload, SECRET, { expiresIn: 86400 }, (err, token) => {
@@ -69,13 +68,15 @@ const userRegister = async (userCreds, role, res) => {
 };
 
 const validateUsername = async (username) => {
-	let user = await User.findOne({ username });
-	return user ? false : true;
+	let user = await pool.query('SELECT * FROM users WHERE username = $1', [
+		username,
+	]);
+	return user.rowCount != 0 ? false : true;
 };
 
 const validateEmail = async (email) => {
-	let user = await User.findOne({ email });
-	return user ? false : true;
+	let user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+	return user.rowCount != 0 ? false : true;
 };
 
 module.exports = { userRegister };

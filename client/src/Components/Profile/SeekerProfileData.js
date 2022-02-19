@@ -4,15 +4,14 @@ import PropTypes from 'prop-types';
 const SeekerProfileData = ({
 	profile: {
 		location,
-		desc,
-		portfolio,
-		jobInterests,
-		currentStatus,
-		contactNo,
-		workEmail,
-		currentJob,
+		description,
+		jobinterest,
+		currentstatus,
+		contactno,
 		social,
-		user: { name, username, avatar },
+		name,
+		username,
+		avatar,
 	},
 	seeker: { email },
 }) => {
@@ -26,38 +25,18 @@ const SeekerProfileData = ({
 				</p>
 				<p>{location && <span>{location}</span>}</p>
 				<div class='icons my-1'>
-					{portfolio && (
-						<a href={portfolio} target='_blank' rel='noopener noreferrer'>
-							<i class='fas fa-globe fa-2x'></i>
-						</a>
-					)}
-					{social && social.github && (
-						<a href={social.github} target='_blank' rel='noopener noreferrer'>
-							<i class='fab fa-github fa-2x'></i>
-						</a>
-					)}
-					{social && social.twitter && (
-						<a href={social.twitter} target='_blank' rel='noopener noreferrer'>
-							<i class='fab fa-twitter fa-2x'></i>
-						</a>
-					)}
-					{social && social.facebook && (
-						<a href={social.facebook} target='_blank' rel='noopener noreferrer'>
-							<i class='fab fa-facebook fa-2x'></i>
-						</a>
-					)}
-					{social && social.linkedin && (
-						<a href={social.linkedin} target='_blank' rel='noopener noreferrer'>
-							<i class='fab fa-linkedin fa-2x'></i>
+					{social && (
+						<a href={social} target='_blank' rel='noopener noreferrer'>
+							<i class='fa fa-heart fa-2x'></i>
 						</a>
 					)}
 				</div>
 			</div>
 			<div class='profile-about bg-light p-2'>
-				{desc && (
+				{description && (
 					<Fragment>
 						<h2 class='text-primary'>Bio</h2>
-						<p>{desc}</p>
+						<p>{description}</p>
 						<div class='line'></div>
 					</Fragment>
 				)}
@@ -67,36 +46,24 @@ const SeekerProfileData = ({
 					<div class='p-1'>
 						<i class='fa fa-envelope'></i>
 						<strong>Email: </strong>
-						{workEmail ? (
-							<span>{`${workEmail}  | `}</span>
-						) : (
-							<span>{`${email}  | `}</span>
-						)}
+						<span>{`${email}  | `}</span>
 						<i class='fa fa-phone'></i>
 						<strong>Contact: </strong>
-						{contactNo && <span>{`${contactNo}  | `}</span>}
+						{contactno && <span>{`${contactno}  | `}</span>}
 						<i class='fa fa-user'></i>
 						<strong>Status: </strong>
-						{currentStatus && <span>{`${currentStatus}  | `} </span>}
-
-						{currentStatus === 'Employed' && (
-							<Fragment>
-								<i class='fa fa-briefcase'></i>
-								<strong>Currently: </strong>
-							</Fragment>
-						)}
-						{currentJob && <span>{`${currentJob}`} </span>}
+						{currentstatus && <span>{`${currentstatus}`} </span>}
 					</div>
 				</div>
 				<br />
 				<div class='profile-about bg-light p-2'>
 					<div class='skills'>
 						<strong>Interested In: </strong>
-						{jobInterests &&
-							jobInterests.map((jobInterest, index) => (
+						{jobinterest &&
+							jobinterest.map((interest, index) => (
 								<div key={index} className='p-1'>
 									<i className='fa fa-check' aria-hidden='true'></i>
-									<span>{jobInterest}</span>
+									<span>{interest}</span>
 								</div>
 							))}
 					</div>
