@@ -18,7 +18,7 @@ const Companies = ({ getCompanies, profile: { profiles, isLoading } }) => {
 	useEffect(() => {
 		setFilteredCompanies(
 			allCompanies.filter((company) =>
-				company.user.name.toLowerCase().includes(searchField.toLowerCase())
+				company.name.toLowerCase().includes(searchField.toLowerCase())
 			)
 		);
 	}, [searchField, allCompanies]);
@@ -47,7 +47,7 @@ const Companies = ({ getCompanies, profile: { profiles, isLoading } }) => {
 					<div className='profiles'>
 						{filteredCompanies.length > 0 ? (
 							filteredCompanies.map((profile) => (
-								<CompanyItem key={profile._id} profile={profile} />
+								<CompanyItem key={profile.recruiterid} profile={profile} />
 							))
 						) : (
 							<h4>No Companies found</h4>

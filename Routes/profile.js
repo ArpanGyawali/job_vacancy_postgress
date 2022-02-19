@@ -11,6 +11,7 @@ const {
 	deleteSeeker,
 } = require('../Utilities/authProfile');
 const { RecruiterProfile } = require('../Models/Profile');
+const pool = require('../db');
 
 // Seeker profile Routes
 // router.get('/profile-seeker&recruiter', userAuth,  checkRole(['seeker', 'recruiter', 'admin']), (req, res) => {
@@ -39,11 +40,6 @@ const validationRecruiterArr = [
 	check('description', 'Your description is required').not().isEmpty(),
 	check('social', 'Any social media link is required').not().isEmpty(),
 ];
-
-// Seeker Own Profile Route
-router.get('/myProfile', userAuth, async (req, res) => {
-	await userMyProfile(req.user, res);
-});
 
 // Seeker Profile Update
 router.post(
@@ -86,10 +82,10 @@ router.post(
 // Get all the companies profile
 router.get('/recruiters', async (req, res) => {
 	try {
-		const recruiters = await RecruiterProfile.find()
-			.populate('user', ['name', 'avatar'])
-			.sort({ noOfJobs: -1 });
-		res.json(recruiters);
+		const recruiters = await pool.query(
+			'SELECT * FROM recruiter as r INNER JOIN users as u ON r.userid = u.userid ORDER BY r.noofjobs DESC'
+		);
+		res.json(recruiters.rows);
 	} catch (err) {
 		return res.status(500).json({
 			message: `Server error ${err}`,

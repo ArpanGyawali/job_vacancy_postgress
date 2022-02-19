@@ -3,35 +3,6 @@
 //const Job = require('../Models/Job');
 const pool = require('../db');
 
-const userMyProfile = async (user, res) => {
-	try {
-		let profile;
-		if (user.role === 'seeker') {
-			profile = await SeekerProfile.findOne({ user: user._id }).populate(
-				'user',
-				['name', 'username', 'avatar', 'role']
-			);
-		} else if (user.role === 'recruiter') {
-			profile = await RecruiterProfile.findOne({ user: user._id }).populate(
-				'user',
-				['name', 'username', 'avatar', 'role']
-			);
-		}
-		if (!profile) {
-			return res.status(400).json({
-				message: `You don't have a profile`,
-				success: false,
-			});
-		}
-		res.status(200).json(profile);
-	} catch (err) {
-		return res.status(500).json({
-			message: `Server error ${err}`,
-			success: false,
-		});
-	}
-};
-
 // Common code for updating
 const updateUser = async (req, res, role, profileFields) => {
 	try {
@@ -268,7 +239,6 @@ const deleteSeeker = async (req, res) => {
 };
 
 module.exports = {
-	userMyProfile,
 	userProfileUpdate,
 	getSeekerById,
 	getRecruiterById,
