@@ -1,16 +1,17 @@
 import React, { Fragment, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { getJobById } from '../../Actions/job';
+import { getJobById, getAppliers } from '../../Actions/job';
 import Moment from 'react-moment';
 import Spinner from '../Layouts/Spinner';
-import ApplyForm from './ApplyForm';
 import ApplyResume from './ApplyResume';
 import ApplyItem from './ApplyItem';
 import { connect } from 'react-redux';
 
 const JobById = ({
 	getJobById,
+	getAppliers,
+	apply,
 	job: { isLoading, job },
 	auth: { isAuthenticated, user },
 }) => {
@@ -18,7 +19,8 @@ const JobById = ({
 
 	useEffect(() => {
 		getJobById(id);
-	}, [getJobById, id]);
+		getAppliers(id);
+	}, [getJobById, getAppliers, id]);
 
 	// if (!isLoading) {
 	// 	const {
@@ -83,7 +85,7 @@ const JobById = ({
 									<th>No of appliers</th>
 									{/* *****************************TO BE CHANGED********************************** */}
 									{/* <td>{job.appliers.length}</td>							 */}
-									<td>0</td>
+									<td>{apply.isLoading === false && apply.appliers.length}</td>
 								</tr>
 								<tr>
 									<th>Posted In</th>
@@ -135,6 +137,13 @@ const JobById = ({
 										{job.appliers.map((apply) => (
 											<ApplyItem key={apply._id} apply={apply} />
 										))} */}
+										{apply.isLoading === false &&
+											apply.appliers.length === 0 && (
+												<h4>No one has applied</h4>
+											)}
+										{apply.appliers.map((applier) => (
+											<ApplyItem key={applier.applierid} apply={applier} />
+										))}
 									</Fragment>
 								)}
 						</Fragment>
@@ -147,13 +156,16 @@ const JobById = ({
 
 JobById.propTypes = {
 	getJobById: PropTypes.func.isRequired,
+	getAppliers: PropTypes.func.isRequired,
 	job: PropTypes.object.isRequired,
 	auth: PropTypes.object.isRequired,
+	apply: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = (state) => ({
 	job: state.job,
 	auth: state.auth,
+	apply: state.apply,
 });
 
-export default connect(mapStateToProps, { getJobById })(JobById);
+export default connect(mapStateToProps, { getJobById, getAppliers })(JobById);

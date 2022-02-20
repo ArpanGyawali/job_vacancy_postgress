@@ -14,7 +14,7 @@ const Admin = ({
 	auth: { user },
 	count,
 }) => {
-	const id = user && user._id;
+	const id = user && user.userid;
 	const name = user && user.name;
 	useEffect(() => {
 		getJobsByUserId(id);
@@ -52,8 +52,8 @@ const Admin = ({
 							<Fragment>
 								{count.companies.map((company) => (
 									<tr>
-										<td>{company.name}</td>
-										<td>{company.noOfJobs}</td>
+										<td>{company.companyname}</td>
+										<td>{company.noofjobs}</td>
 									</tr>
 								))}
 							</Fragment>
@@ -71,7 +71,7 @@ const Admin = ({
 							<h2 class='text-primary'>Jobs Provided</h2>
 							{jobs.length === 0 && <h4>No jobs provided</h4>}
 							{jobs.map((job) => (
-								<JobItem key={job._id} jobb={job} />
+								<JobItem key={job.jobid} jobb={job} />
 							))}
 						</div>
 					</div>

@@ -8,11 +8,13 @@ import {
 	CLEAR_JOBS,
 	GET_JOB,
 	APPLY_JOB,
+	APPLY_ERROR,
 	GET_COUNTS,
 	COUNT_ERROR,
 	FILE_ID,
 	FILE_ERROR,
 	DELETE_FILE,
+	GET_APPLIERS,
 } from './constants';
 
 // Get all the Jobs
@@ -85,6 +87,23 @@ export const getJobById = (id) => async (dispatch) => {
 	}
 };
 
+//Get appliers of the job
+export const getAppliers = (jobid) => async (dispatch) => {
+	try {
+		const res = await axios.get(`/api/jobs/view-appliers/${jobid}`);
+
+		dispatch({
+			type: GET_APPLIERS,
+			payload: res.data,
+		});
+	} catch (err) {
+		dispatch({
+			type: APPLY_ERROR,
+			payload: err.response.data.message,
+		});
+	}
+};
+
 // Delete Job
 export const deleteJob = (id) => async (dispatch) => {
 	try {
@@ -142,7 +161,7 @@ export const applyJob = (jobId, applyData) => async (dispatch) => {
 		dispatch(setAlert('Job already applied', 'danger'));
 
 		dispatch({
-			type: JOB_ERROR,
+			type: APPLY_ERROR,
 			payload: err.response.data.message,
 		});
 	}
@@ -162,7 +181,7 @@ export const applyFile = (jobId, applyData) => async (dispatch) => {
 		dispatch(setAlert(err.response.data.message, 'danger'));
 
 		dispatch({
-			type: JOB_ERROR,
+			type: APPLY_ERROR,
 			payload: err.response.data.message,
 		});
 	}

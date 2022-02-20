@@ -55,12 +55,12 @@ const job = (state = initialState, action) => {
 				jobs: [],
 				error: '',
 			};
-		case APPLY_JOB:
-			return {
-				...state,
-				job: { ...state.job, appliers: payload },
-				isLoading: false,
-			};
+		// case APPLY_JOB:
+		// 	return {
+		// 		...state,
+		// 		job: { ...state.job, appliers: payload },
+		// 		isLoading: false,
+		// 	};
 		default:
 			return state;
 	}

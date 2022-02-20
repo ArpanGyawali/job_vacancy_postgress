@@ -39,7 +39,6 @@ Admin can also post jobs provided by different company for organization students
 
 - Post jobs for companies
   ![admin_screenshot](admn2.png)
-  
 - See stats and jobs provided/ DASHBOARD
   ![admin screenshot](admin.png)
 

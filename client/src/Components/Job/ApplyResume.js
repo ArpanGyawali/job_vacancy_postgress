@@ -35,8 +35,8 @@ const ApplyResume = ({
 	};
 
 	const handleDelete = (id) => {
-		//fileId(job._id, user._id);
-		deleteFile(id, job._id);
+		//deleteFile(id, job.jobid);
+		deleteFile(id, job.jobid);
 		setFile(null);
 		setInputContainsFile(false);
 		setCurrentlyUploading(false);
@@ -44,7 +44,8 @@ const ApplyResume = ({
 	};
 
 	useEffect(() => {
-		fileId(job._id, user._id);
+		// fileId(job.jobid, user.userid);
+		fileId(job.jobid, user.userid);
 	}, [job]);
 
 	return (
@@ -55,7 +56,7 @@ const ApplyResume = ({
 						<div>
 							<h3>Your applied Resume:</h3>
 							<a
-								href={`https://damp-spire-73123.herokuapp.com/api/jobs/files/${file.fileId}`}
+								href={`localhost:3000/api/jobs/files/${file.fileId}`}
 								className='btn btn-primary'
 								target='_blank'
 							>

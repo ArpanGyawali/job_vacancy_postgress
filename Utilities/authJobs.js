@@ -223,21 +223,29 @@ const viewJobByUserId = async (req, res) => {
 
 const viewAppliedJobs = async (req, res) => {
 	try {
-		const jobs = await Job.find({
-			'appliers.user': req.params.userId,
-		}).populate('user', ['role']);
-		if (jobs.length > 0) {
-			return res.json(jobs);
+		const appliedJobs = await pool.query(
+			`SELECT j.*, u.role, u.avatar 
+		FROM jobs as j
+		INNER JOIN appliers as a ON a.jobid = j.jobid
+		INNER JOIN users as u ON u.userid = j.userid
+		WHERE a.userid = $1`,
+			[req.params.userId]
+		);
+		// const jobs = await Job.find({
+		// 	'appliers.user': req.params.userId,
+		// }).populate('user', ['role']);
+		if (appliedJobs.rowCount > 0) {
+			return res.json(appliedJobs.rows);
 		} else {
 			return res.status(404).json({
-				message: `No Jobs Found`,
+				message: `No Jobs Applied`,
 				success: false,
 			});
 		}
 	} catch (err) {
 		if (err.kind === 'ObjectId') {
 			return res.status(404).json({
-				message: `No Jobs Found`,
+				message: `No Jobs Applied`,
 				success: false,
 			});
 		}
@@ -304,6 +312,7 @@ const deleteById = async (req, res) => {
 // Apply for a job
 const applyJob = async (req, res) => {
 	try {
+		console.log('/*-/-*/-*/-*/-/*/-*/-*/-**/-*/');
 		const applier = await pool.query(
 			'INSERT INTO appliers (userid, jobid, filename) VALUES ($1, $2, $3)',
 			[req.user.userid, req.params.jobId]
@@ -362,13 +371,12 @@ const applyFile = async (req, res, file) => {
 		// 	file: file.id,
 		// 	filename: file.originalname,
 		// };
-
 		// Check if the job is already applied
 		const applier = await pool.query(
 			'SELECT * FROM appliers WHERE userid = $1 AND jobid = $2',
 			[req.user.userid, req.params.jobId]
 		);
-		if (applier.rowCount == 0) {
+		if (applier.rowCount != 0) {
 			return res.status(400).json({
 				message: 'Job already applied',
 				success: false,
@@ -386,6 +394,33 @@ const applyFile = async (req, res, file) => {
 		if (err.kind === 'ObjectId') {
 			return res.status(404).json({
 				message: `Job not found`,
+				success: false,
+			});
+		}
+		return res.status(500).json({
+			message: `Server error ${err}`,
+			success: false,
+		});
+	}
+};
+
+const getAppliers = async (req, res) => {
+	try {
+		const appliers = await pool.query(
+			`SELECT a.*, u.name, u.avatar 
+			FROM appliers as a
+			INNER JOIN users as u
+			ON a.userid = u.userid
+			WHERE a.jobid = $1`,
+			[req.params.jobid]
+		);
+		if (appliers.rowCount > 0) {
+			res.json(appliers.rows);
+		}
+	} catch (err) {
+		if (err.kind === 'ObjectId') {
+			return res.status(404).json({
+				message: `Appliers not found`,
 				success: false,
 			});
 		}
@@ -425,10 +460,10 @@ const countJobs = async (req, res) => {
 
 const deleteFile = async (req, res, gfs) => {
 	try {
-		await Job.findOneAndUpdate(
-			{ _id: req.params.jobId },
-			{ $pull: { appliers: { file: req.params.fileId } } }
-		);
+		await pool.query('DELETE FROM appliers WHERE fileid = $1 AND jobid = $2', [
+			req.params.fileId,
+			req.params.jobId,
+		]);
 		//res.redirect(`/api/jobs/view-jobs`);
 		await gfs.delete(
 			new mongoose.Types.ObjectId(req.params.fileId),
@@ -451,16 +486,20 @@ const deleteFile = async (req, res, gfs) => {
 
 const findFileId = async (req, res) => {
 	try {
-		const job = await Job.findById(req.params.jobId);
-		const filteredApplier =
-			job &&
-			job.appliers.filter(
-				(applier) => applier.user.toString() === req.params.userId.toString()
-			);
-		if (filteredApplier && filteredApplier.length > 0) {
+		// const job = await Job.findById(req.params.jobId);
+		const filteredApplier = await pool.query(
+			'SELECT * FROM appliers WHERE jobid = $1 AND userid = $2',
+			[req.params.jobId, req.params.userId]
+		);
+		// const filteredApplier =
+		// 	job &&
+		// 	job.appliers.filter(
+		// 		(applier) => applier.user.toString() === req.params.userId.toString()
+		// 	);
+		if (filteredApplier.rowCount > 0) {
 			const fileData = {
-				id: new mongoose.Types.ObjectId(filteredApplier[0].file),
-				name: filteredApplier[0].filename,
+				id: filteredApplier.rows[0].fileid,
+				name: filteredApplier.rows[0].filename,
 			};
 			res.json(fileData);
 		} else {
@@ -503,4 +542,5 @@ module.exports = {
 	applyFile,
 	deleteFile,
 	findFileId,
+	getAppliers,
 };

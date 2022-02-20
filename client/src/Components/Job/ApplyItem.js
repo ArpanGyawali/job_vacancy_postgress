@@ -4,19 +4,19 @@ import PropTypes from 'prop-types';
 import Moment from 'react-moment';
 
 const ApplyItem = ({
-	apply: { _id, resume, file, filename, name, avatar, applied, user },
+	apply: { userid, jobid, fileid, filename, name, avatar, applied },
 }) => {
 	return (
 		<div className='post bg-white p-1 my-1'>
 			<div>
-				<Link to={`/seekerProfile/${user}`}>
+				<Link to={`/seekerProfile/${userid}`}>
 					<img className='round-img' src={avatar} alt='' />
 					<h4>{name}</h4>
 				</Link>
 			</div>
 			<div>
 				<a
-					href={`https://damp-spire-73123.herokuapp.com/api/jobs/files/${file}`}
+					href={`localhost:3000/api/jobs/files/${fileid}`}
 					className='btn btn-primary'
 					target='_blank'
 				>

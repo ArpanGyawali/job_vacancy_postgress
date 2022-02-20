@@ -81,7 +81,7 @@ const updateUser = async (req, res, role, profileFields) => {
 					location,
 					description,
 					social,
-					contactNo,
+					contactno,
 					jobinterest,
 					currentstatus,
 				} = profileFields;
@@ -89,13 +89,14 @@ const updateUser = async (req, res, role, profileFields) => {
 				sek = await pool.query(query, [
 					user,
 					location,
-					contactNo,
+					contactno,
 					description,
 					social,
 					jobinterest,
 					currentstatus,
 				]);
 			}
+			console.log(sek.rows[0]);
 			return res.status(200).json(sek.rows[0]);
 		}
 	} catch (err) {

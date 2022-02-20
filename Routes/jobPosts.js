@@ -17,6 +17,7 @@ const {
 	viewAppliedJobs,
 	countJobs,
 	applyFile,
+	getAppliers,
 	deleteFile,
 	findFileId,
 } = require('../Utilities/authJobs');
@@ -172,7 +173,6 @@ const store = multer({
 });
 
 function checkFileType(file, cb) {
-	// https://youtu.be/9Qzmri1WaaE?t=1515
 	// define a regex that includes the file types we accept
 	const filetypes = /pdf/;
 	//check the file extention
@@ -208,6 +208,7 @@ const uploadMiddleware = (req, res, next) => {
 	});
 };
 
+//apply resume
 router.post(
 	'/apply/:jobId',
 	userAuth,
@@ -219,6 +220,11 @@ router.post(
 		await applyFile(req, res, req.file);
 	}
 );
+
+//get appliers
+router.get('/view-appliers/:jobid', userAuth, async (req, res) => {
+	await getAppliers(req, res);
+});
 
 //display single file
 router.get('/files/:fileId', async ({ params: { fileId } }, res) => {
