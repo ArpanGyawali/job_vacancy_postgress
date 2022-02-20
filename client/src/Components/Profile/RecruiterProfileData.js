@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 const RecruiterProfileData = ({
 	profile: {
 		location,
-		noOfjobs,
+		noofjobs,
 		description,
 		website,
 		contactno,
@@ -57,7 +57,7 @@ const RecruiterProfileData = ({
 						{contactno && <span>{`${contactno}  | `} </span>}
 						<i class='fa fa-briefcase'></i>
 						<strong>No of Jobs Provided: </strong>
-						<span>{noOfjobs}</span>
+						<span>{noofjobs}</span>
 					</div>
 				</div>
 			</div>

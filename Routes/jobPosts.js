@@ -29,6 +29,14 @@ const validationJobArr = [
 	check('title', 'Enter the job title').not().isEmpty(),
 	check('catagory', 'Enter the job catagory').not().isEmpty(),
 	check('level', 'Enter the job level').not().isEmpty(),
+	check(
+		'skillsandqualifications',
+		'Enter at least one skills and qualifications required'
+	)
+		.not()
+		.isEmpty(),
+	check('description', 'Enter the job decription').not().isEmpty(),
+	check('type', 'Enter the job level').not().isEmpty(),
 ];
 
 const validationApplyArr = [

@@ -8,8 +8,8 @@ import { connect } from 'react-redux';
 const JobItem = ({
 	deleteJob,
 	jobb: {
-		_id,
-		user,
+		jobid,
+		userid,
 		company,
 		avatar,
 		title,
@@ -17,28 +17,29 @@ const JobItem = ({
 		level,
 		location,
 		deadline,
-		vacancyNo,
+		vacancyno,
 		posted,
+		role,
 	},
 	auth,
 }) => {
 	const userr = auth.user;
 	const { isLoading } = auth;
 	if (userr && !userr.email.includes('@pcampus.edu.np')) {
-		if (user && user.role === 'admin') {
+		if (role === 'admin') {
 			return null;
 		}
 	}
 	return (
 		<Fragment>
 			<div className='post bg-white p-1 my-1'>
-				{user && user.role === 'admin' ? (
+				{role === 'admin' ? (
 					<div>
 						<h4>{company}</h4>
 					</div>
 				) : (
 					<div>
-						<Link to={`/recruiterProfile/${user && user._id}`}>
+						<Link to={`/recruiterProfile/${userid}`}>
 							<img className='round-img' src={avatar} alt='' />
 							<h4>{company}</h4>
 						</Link>
@@ -64,18 +65,18 @@ const JobItem = ({
 					</p>
 					<p className='my-1'>
 						<strong>Vacancy: </strong>
-						{vacancyNo} | <strong>Locaion: </strong>
+						{vacancyno} | <strong>Locaion: </strong>
 						{location}
 					</p>
-					<Link to={`/job/${_id}`} className='btn btn-primary'>
+					<Link to={`/job/${jobid}`} className='btn btn-primary'>
 						{'View More  '}
 						<i className='fa fa-arrow-right'></i>
 					</Link>
-					{!isLoading && userr && user && user._id === userr._id && (
+					{!isLoading && userr && userid === userr.userid && (
 						<button
 							type='button'
 							className='btn btn-danger'
-							onClick={() => deleteJob(_id)}
+							onClick={() => deleteJob(jobid)}
 						>
 							<i className='fas fa-trash'></i>
 						</button>

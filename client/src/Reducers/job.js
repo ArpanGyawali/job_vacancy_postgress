@@ -33,6 +33,7 @@ const job = (state = initialState, action) => {
 		case POST_JOB:
 			return {
 				...state,
+				job: payload,
 				jobs: [...state.jobs, payload],
 				isLoading: false,
 			};

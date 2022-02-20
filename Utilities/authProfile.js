@@ -157,12 +157,14 @@ const getById = async (req, res, database) => {
 	try {
 		let query;
 		if (database == 'seeker') {
-			query = `SELECT * FROM seeker AS s 
+			query = `SELECT s.*, u.name, u.username, u.avatar, u.email 
+			FROM seeker AS s 
 			INNER JOIN users as u
 			ON s.userid = u.userid
 			WHERE s.userid = $1`;
 		} else {
-			query = `SELECT * FROM recruiter AS r
+			query = `SELECT r.*, u.name, u.username, u.avatar, u.email 
+			FROM recruiter AS r
 			INNER JOIN users as u
 			ON r.userid = u.userid
 			WHERE r.userid = $1`;

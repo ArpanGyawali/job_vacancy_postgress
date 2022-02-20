@@ -23,13 +23,13 @@ const PostJobForm = ({
 		title: '',
 		catagory: '',
 		level: '',
-		hrEmail: '',
-		vacancyNo: 1,
+		hremail: '',
+		vacancyno: 1,
 		deadline: Date.now,
 		type: '',
 		salary: 'Negotiable',
 		location: '',
-		skillsAndQualifications: '',
+		skillsandqualifications: '',
 		description: '',
 	});
 
@@ -38,13 +38,13 @@ const PostJobForm = ({
 		title,
 		catagory,
 		level,
-		vacancyNo,
+		vacancyno,
 		deadline,
-		hrEmail,
+		hremail,
 		type,
 		salary,
 		location,
-		skillsAndQualifications,
+		skillsandqualifications,
 		description,
 	} = jobData;
 
@@ -183,8 +183,8 @@ const PostJobForm = ({
 					<input
 						type='number'
 						placeholder='Number of vacancy'
-						name='vacancyNo'
-						value={vacancyNo}
+						name='vacancyno'
+						value={vacancyno}
 						onChange={(ele) => handleChange(ele)}
 					/>
 					<small className='form-text'>
@@ -244,20 +244,20 @@ const PostJobForm = ({
 				<hr />
 				<div className='form-group'>
 					<textarea
-						placeholder='Education, skills and other qualification required for this job'
-						name='skillsAndQualifications'
-						value={skillsAndQualifications}
+						placeholder='* Education, skills and other qualification required for this job'
+						name='skillsandqualifications'
+						value={skillsandqualifications}
 						onChange={(ele) => handleChange(ele)}
 					/>
 					<small className='form-text'>
-						Seperate different quallifications by enter key(Next line) so that
+						* Seperate different quallifications by enter key(Next line) so that
 						it appears as a list.
 					</small>
 				</div>
 				<hr />
 				<div className='form-group'>
 					<textarea
-						placeholder='Short description about the job'
+						placeholder='* Short description about the job'
 						name='description'
 						value={description}
 						onChange={(ele) => handleChange(ele)}
@@ -268,8 +268,8 @@ const PostJobForm = ({
 					<input
 						type='text'
 						placeholder='Email of HR or anyone concerned with management of this job'
-						name='hrEmail'
-						value={hrEmail}
+						name='hremail'
+						value={hremail}
 						onChange={(ele) => handleChange(ele)}
 					/>
 					<small className='form-text'>

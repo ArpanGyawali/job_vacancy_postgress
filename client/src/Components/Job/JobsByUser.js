@@ -19,7 +19,7 @@ const Jobs = ({ getJobsByUserId, job: { jobs, isLoading }, id }) => {
 					<h2 class='text-primary'>Jobs Provided</h2>
 					{jobs.length === 0 && <h4>No jobs provided</h4>}
 					{jobs.map((job) => (
-						<JobItem key={job._id} jobb={job} />
+						<JobItem key={job.jobid} jobb={job} />
 					))}
 				</div>
 			</div>

@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const { RecruiterProfile } = require('../Models/Profile');
 const User = require('../Models/User');
 const Company = require('../Models/AdminCompany');
+const pool = require('../db');
+const { CommandCompleteMessage } = require('pg-protocol/dist/messages');
 // const User = require('../Models/User');
 
 const addJob = async (req, res) => {
@@ -11,74 +13,103 @@ const addJob = async (req, res) => {
 		title,
 		catagory,
 		level,
-		vacancyNo,
-		hrEmail,
+		vacancyno,
+		hremail,
 		deadline,
 		type,
 		salary,
 		location,
-		skillsAndQualifications,
+		skillsandqualifications,
 		description,
 	} = req.body;
 
-	// BUild profile object
-	const jobFields = {};
-	if (req.user.role === 'recruiter') {
-		jobFields.user = req.user._id;
-		jobFields.company = req.user.name;
-		jobFields.avatar = req.user.avatar;
-	} else {
-		//const user_id = await User.findOne({ name: company });
-		jobFields.company = company;
-		jobFields.user = req.user._id;
-		// jobFields.avatar = user_id.avatar;
-	}
-	if (title) jobFields.title = title;
-	if (catagory) jobFields.catagory = catagory;
-	if (level) jobFields.level = level;
-	if (vacancyNo) jobFields.vacancyNo = vacancyNo;
-	if (deadline) jobFields.deadline = deadline;
-	if (type) jobFields.type = type;
-	if (hrEmail) jobFields.hrEmail = hrEmail;
-	if (salary) jobFields.salary = salary;
-	if (location) jobFields.location = location;
-	if (description) jobFields.description = description;
-	if (skillsAndQualifications) {
-		jobFields.skillsAndQualifications = skillsAndQualifications.split('\n');
-	}
+	const skillsAndQualifications = skillsandqualifications.split('\n');
 	try {
-		// let job = await Job.findOne({ user: jobFields.user } )
-
-		// // Updating Job
-		// if(job) {
-		//   job = await Job.findOneAndUpdate(
-		//     {company: jobFields.company},
-		//     {$set: jobFields},
-		//     {new: true}
-		//   )
-		//   return res.status(200).json(job)
-		// }
-		// Adding new Job
-		const adminCompany = await Company.findOne({ name: company });
-		const job = new Job(jobFields);
-		await job.save();
-		if (job && req.user.role === 'admin') {
-			if (adminCompany) {
-				adminCompany.noOfJobs += 1;
-				await adminCompany.save();
+		const adminCompany = await pool.query(
+			'SELECT * FROM companies WHERE companyname = $1',
+			[company]
+		);
+		let query;
+		if (hremail) {
+			if (req.user.role === 'admin') {
+				query = {
+					text: 'INSERT INTO jobs (userid, title, catagory, level, vacancyno, deadline, hremail, location, skillsandqualifications, description, type, salary, company) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *',
+					values: [
+						req.user.userid,
+						title,
+						catagory,
+						level,
+						vacancyno,
+						deadline,
+						hremail,
+						location,
+						skillsAndQualifications,
+						description,
+						type,
+						salary,
+						company,
+					],
+				};
 			} else {
-				const newCompany = new Company({ name: company, noOfJobs: 1 });
-				await newCompany.save();
+				query = {
+					text: 'INSERT INTO jobs (userid, title, catagory, level, vacancyno, deadline, hremail, location, skillsandqualifications, description, type, salary, company) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *',
+					values: [
+						req.user.userid,
+						title,
+						catagory,
+						level,
+						vacancyno,
+						deadline,
+						hremail,
+						location,
+						skillsAndQualifications,
+						description,
+						type,
+						salary,
+						req.user.name,
+					],
+				};
 			}
+		} else {
+			query = {
+				text: 'INSERT INTO jobs (userid, title, catagory, level, vacancyno, deadline, location, skillsandqualifications, description, type, salary, company) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *',
+				values: [
+					req.user.userid,
+					title,
+					catagory,
+					level,
+					vacancyno,
+					deadline,
+					location,
+					skillsAndQualifications,
+					description,
+					type,
+					salary,
+					req.user.name,
+				],
+			};
 		}
-
-		if (job) {
-			await RecruiterProfile.findOneAndUpdate(
-				{ user: req.user.id },
-				{ $inc: { noOfJobs: 1 } }
+		const job = await pool.query(query);
+		const jobItem = job.rows[0];
+		if (job.rowCount != 0 && req.user.role === 'admin') {
+			if (adminCompany.rowCount != 0) {
+				await pool.query(
+					'UPDATE companies SET noofjobs = noofjobs + $1 WHERE companyname = $2',
+					[1, company]
+				);
+			} else {
+				await pool.query(
+					'INSERT INTO companies (companyname, noofjobs) VALUES ($1, $2)',
+					[company, 1]
+				);
+			}
+		} else if (job.rowCount != 0 && req.user.role === 'recruiter') {
+			await pool.query(
+				'UPDATE recruiter SET noofjobs = noofjobs + $1 WHERE userid = $2',
+				[1, req.user.userid]
 			);
 		}
-		return res.status(200).json(job);
+		return res.status(200).json(jobItem);
 	} catch (err) {
 		return res.status(500).json({
 			message: `Server error ${err}`,
@@ -91,16 +122,24 @@ const viewJobs = async (req, res) => {
 	try {
 		let jobs;
 		if (req.body.sortBy === 'vacancyNo') {
-			jobs = await Job.find()
-				.sort({ vacancyNo: -1 })
-				.populate('user', ['role']);
+			jobs = await pool.query(
+				`SELECT j.*, u.role, u.avatar
+				FROM jobs AS j 
+				INNER JOIN users AS u 
+				ON j.userid = u.userid
+				ORDER BY j.vacancyno DESC `
+			);
 		} else {
-			jobs = await Job.find({ vacancyNo: { $gt: 0 } })
-				.sort({ posted: -1 })
-				.populate('user', ['role']);
+			jobs = await pool.query(
+				`SELECT j.*, u.role, u.avatar
+				FROM jobs AS j 
+				INNER JOIN users AS u 
+				ON j.userid = u.userid
+				ORDER BY j.posted DESC `
+			);
 		}
-		if (jobs.length > 0) {
-			return res.json(jobs);
+		if (jobs.rowCount > 0) {
+			return res.json(jobs.rows);
 		} else {
 			return res.status(404).json({
 				message: `No Jobs Found`,
@@ -117,14 +156,23 @@ const viewJobs = async (req, res) => {
 
 const viewJobById = async (req, res) => {
 	try {
-		const job = await Job.findById(req.params.jobId).populate('user', ['role']);
-		if (!job) {
+		const job = await pool.query(
+			`
+		SELECT j.*, u.role, u.avatar 
+		FROM jobs AS j
+		INNER JOIN users as u
+		ON j.userid = u.userid
+		WHERE j.jobid = $1`,
+			[req.params.jobId]
+		);
+
+		if (job.rowCount == 0) {
 			return res.status(404).json({
 				message: `Job not found`,
 				success: false,
 			});
 		}
-		return res.json(job);
+		return res.json(job.rows[0]);
 	} catch (err) {
 		if (err.kind === 'ObjectId') {
 			return res.status(404).json({
@@ -141,13 +189,18 @@ const viewJobById = async (req, res) => {
 
 const viewJobByUserId = async (req, res) => {
 	try {
-		const jobs = await Job.find({ user: req.params.userId })
-			.sort({
-				vacancyNo: -1,
-			})
-			.populate('user', ['role']);
-		if (jobs.length > 0) {
-			return res.json(jobs);
+		const jobs = await pool.query(
+			`
+		SELECT j.*, u.role, u.avatar 
+		FROM jobs AS j
+		INNER JOIN users as u
+		ON j.userid = u.userid
+		WHERE j.userid = $1
+		ORDER BY j.vacancyno DESC`,
+			[req.params.userId]
+		);
+		if (jobs.rowCount > 0) {
+			return res.json(jobs.rows);
 		} else {
 			return res.status(404).json({
 				message: `No Jobs Found`,
@@ -197,37 +250,37 @@ const viewAppliedJobs = async (req, res) => {
 
 const deleteById = async (req, res) => {
 	try {
-		const job = await Job.findById(req.params.jobId);
+		const jobCompany = await pool.query(
+			'DELETE FROM jobs WHERE jobid = $1 RETURNING company',
+			[req.params.jobId]
+		);
+		// const job = await Job.findById(req.params.jobId);
 
-		if (!job) {
-			return res.status(404).json({
-				message: `Job not found`,
-				success: false,
-			});
-		}
+		// if (!job) {
+		// 	return res.status(404).json({
+		// 		message: `Job not found`,
+		// 		success: false,
+		// 	});
+		// }
 
-		// Check User
-		if (job.user.toString() !== req.user._id.toString()) {
-			return res.status(401).json({
-				message: `You cannot delete the job`,
-				success: false,
-			});
-		}
-		await job.remove();
-		if (job) {
-			await RecruiterProfile.findOneAndUpdate(
-				{ user: req.user.id },
-				{ $inc: { noOfJobs: -1 } }
-			);
-		}
+		// // Check User
+		// if (job.user.toString() !== req.user._id.toString()) {
+		// 	return res.status(401).json({
+		// 		message: `You cannot delete the job`,
+		// 		success: false,
+		// 	});
+		// }
+		await pool.query(
+			'UPDATE recruiter SET noofjobs = noofjobs - $1 WHERE userid = $2',
+			[1, req.user.userid]
+		);
 
 		// Updating the count
 		if (req.user.role === 'admin') {
-			const adminCompany = await Company.findOne({ name: job.company });
-			if (adminCompany) {
-				adminCompany.noOfJobs -= 1;
-				await adminCompany.save();
-			}
+			await pool.query(
+				'UPDATE companies SET noofjobs = noofjobs - $1 WHERE companyname = $2',
+				[1, jobCompany.rows[0].company]
+			);
 		}
 
 		return res.status(200).json({
@@ -251,6 +304,10 @@ const deleteById = async (req, res) => {
 // Apply for a job
 const applyJob = async (req, res) => {
 	try {
+		const applier = await pool.query(
+			'INSERT INTO appliers (userid, jobid, filename) VALUES ($1, $2, $3)',
+			[req.user.userid, req.params.jobId]
+		);
 		const user = await User.findById(req.user.id).select('-password');
 		const job = await Job.findById(req.params.jobId);
 		const newApply = {
@@ -296,35 +353,35 @@ const applyJob = async (req, res) => {
 // Apply for a job
 const applyFile = async (req, res, file) => {
 	try {
-		const user = await User.findById(req.user.id).select('-password');
-		const job = await Job.findById(req.params.jobId);
-		const newApply = {
-			user: req.user.id,
-			name: user.name,
-			avatar: user.avatar,
-			file: file.id,
-			filename: file.originalname,
-		};
-		if (!job) {
-			return res.status(404).json({
-				message: `Job not found`,
-				success: false,
-			});
-		}
-		// Check if the post is already applied
-		if (
-			job.appliers.filter(
-				(applier) => applier.user.toString() === req.user.id.toString()
-			).length > 0
-		) {
+		// const user = await User.findById(req.user.id).select('-password');
+		// const job = await Job.findById(req.params.jobId);
+		// const newApply = {
+		// 	user: req.user.id,
+		// 	name: user.name,
+		// 	avatar: user.avatar,
+		// 	file: file.id,
+		// 	filename: file.originalname,
+		// };
+
+		// Check if the job is already applied
+		const applier = await pool.query(
+			'SELECT * FROM appliers WHERE userid = $1 AND jobid = $2',
+			[req.user.userid, req.params.jobId]
+		);
+		if (applier.rowCount == 0) {
 			return res.status(400).json({
 				message: 'Job already applied',
 				success: false,
 			});
 		}
-		job.appliers.unshift(newApply);
-		await job.save();
-		res.json(job.appliers);
+		const newApplier = await pool.query(
+			'INSERT INTO appliers (userid, jobid, filename, fileid) VALUES ($1, $2, $3, $4) RETURNING *',
+			[req.user.userid, req.params.jobId, file.originalname, file.id]
+		);
+		// job.appliers.unshift(newApply);
+		// await job.save();
+		// res.json(job.appliers);
+		res.json(newApplier.rows[0]);
 	} catch (err) {
 		if (err.kind === 'ObjectId') {
 			return res.status(404).json({
@@ -341,9 +398,11 @@ const applyFile = async (req, res, file) => {
 
 const countJobs = async (req, res) => {
 	try {
-		const companies = await Company.find().sort({ noOfJobs: -1 });
-		if (companies.length > 0) {
-			return res.json(companies);
+		const companies = await pool.query(
+			'SELECT * FROM companies ORDER BY noofjobs DESC'
+		);
+		if (companies.rowCount != 0) {
+			return res.json(companies.rows);
 		} else {
 			return res.status(404).json({
 				message: `No Companies Found`,

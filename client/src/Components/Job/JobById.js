@@ -48,10 +48,10 @@ const JobById = ({
 				<Fragment>
 					{job && (
 						<Fragment>
-							{job.user.role === 'recruiter' ? (
+							{job.role === 'recruiter' ? (
 								<h2 className='text-primary'>
 									{`${job.title} by `}
-									<Link to={`/recruiterProfile/${job.user._id}`}>
+									<Link to={`/recruiterProfile/${job.userid}`}>
 										{job.company}
 									</Link>
 								</h2>
@@ -79,9 +79,11 @@ const JobById = ({
 								</tr>
 								<tr>
 									<th>No of Vacancy</th>
-									<td>{job.vacancyNo}</td>
+									<td>{job.vacancyno}</td>
 									<th>No of appliers</th>
-									<td>{job.appliers.length}</td>
+									{/* *****************************TO BE CHANGED********************************** */}
+									{/* <td>{job.appliers.length}</td>							 */}
+									<td>0</td>
 								</tr>
 								<tr>
 									<th>Posted In</th>
@@ -100,7 +102,7 @@ const JobById = ({
 								<tr>
 									<th>Skills and Qualifications</th>
 									<td colSpan='3'>
-										{job.skillsAndQualifications.map((item) => (
+										{job.skillsandqualifications.map((item) => (
 											<p className='my-1'>
 												<i className='fa fa-arrow-right'></i> {` ${item}`}
 											</p>
@@ -112,26 +114,27 @@ const JobById = ({
 									<td colSpan='3'>{job.description}</td>
 								</tr>
 							</table>
-							{job.hrEmail && (
+							{job.hremail && (
 								<p>
 									For more information about the job, email{' '}
-									<strong>{job.hrEmail}</strong>
+									<strong>{job.hremail}</strong>
 								</p>
 							)}
 							<br />
 
 							{isAuthenticated && user.role === 'seeker' && (
-								<ApplyResume key={user._id} jobId={job._id} />
+								<ApplyResume key={user.userid} jobId={job.jobid} />
 							)}
 							{isAuthenticated &&
-								job.user._id === user._id &&
+								job.userid == user.userid &&
 								(user.role === 'recruiter' || user.role === 'admin') && (
 									<Fragment>
 										<h3 className='text-primary'>Appliers</h3>
-										{job.appliers.length === 0 && <h4>No one has applied</h4>}
+										{/* *****************************TO BE CHANGED********************************** */}
+										{/* {job.appliers.length === 0 && <h4>No one has applied</h4>}
 										{job.appliers.map((apply) => (
 											<ApplyItem key={apply._id} apply={apply} />
-										))}
+										))} */}
 									</Fragment>
 								)}
 						</Fragment>

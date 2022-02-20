@@ -87,7 +87,7 @@ const Jobs = ({ getJobs, job: { jobs, isLoading }, auth: { user } }) => {
 			<div className='posts'>
 				<br />
 				{filteredJobs.length > 0 ? (
-					filteredJobs.map((job) => <JobItem key={job._id} jobb={job} />)
+					filteredJobs.map((job) => <JobItem key={job.jobid} jobb={job} />)
 				) : (
 					<h4>No Job Found</h4>
 				)}
